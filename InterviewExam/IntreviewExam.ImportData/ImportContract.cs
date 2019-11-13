@@ -1,5 +1,6 @@
 ﻿using InterviewExam.Common;
 using InterviewExam.Entities;
+using IntreviewExam.DataAccessLayer.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,16 +15,21 @@ namespace IntreviewExam.ImportData
 {
     public class ImportContract : IImportContract
     {
-
         protected Dictionary<string, Action<string, Contract>> ContractProcessors { get; private set; }
         protected Dictionary<string, Action<string, Individual>> IndividualProcessors { get; private set; }
         protected Dictionary<string, Action<string, SubjectRole>> SubjectRoleProcessors { get; private set; }
         protected IImportValidator ImportValidator { get; set; }
+        protected IContractRepository ContractRepository { get; set; }
+        protected IErrorRepository ErrorRepository { get; set; }
         protected ValidatorResult CurrentValidatorResult { get; set; }
         public List<ValidatorResult> ValidatorResults { get; private set; }
-        public ImportContract(IImportValidator importValidator)
+        public ImportContract(IImportValidator importValidator,
+            IContractRepository contractRepository,
+            IErrorRepository errorRepository)
         {
             ImportValidator = importValidator;
+            ContractRepository = contractRepository;
+            ErrorRepository = errorRepository;
             ContractProcessors = new Dictionary<string, Action<string, Contract>>();
             IndividualProcessors = new Dictionary<string, Action<string, Individual>>();
             SubjectRoleProcessors = new Dictionary<string, Action<string, SubjectRole>>();
@@ -53,7 +59,7 @@ namespace IntreviewExam.ImportData
             settings.ValidationFlags |= XmlSchemaValidationFlags.ReportValidationWarnings;
             settings.ValidationEventHandler += new ValidationEventHandler(ValidationCallBack);
 
-           // List<Contract> contracts = new List<Contract>();
+            // List<Contract> contracts = new List<Contract>();
             using (XmlReader reader = XmlReader.Create(pathToXml))
             {
                 while (reader.Read())
@@ -92,7 +98,15 @@ namespace IntreviewExam.ImportData
                                         }
                                     }
                                     ValidateImportedData(contract);
-                                    contract.IsValid = ValidatorResults.Count() == 0;
+                                    if (ValidatorResults.Count() == 0)
+                                        ContractRepository.Insert(MapContract(contract));
+                                    else
+                                        ErrorRepository.Insert(new DataAccessLayer.Models.Error()
+                                                {
+                                                    ContractCode = contract.ContractCode,
+                                                    Messages = ValidatorResults.Select(x => x.Message).ToList()
+                                                }
+                                            );
                                     ValidatorResults.Clear();
                                 }
                                 break;
@@ -104,20 +118,73 @@ namespace IntreviewExam.ImportData
 
         }
 
+        //TODO Move to BL
+        private DataAccessLayer.Models.Contract MapContract(Contract contract)
+        {
+            var contractData = new DataAccessLayer.Models.Contract()
+            {
+                ContractCode = contract.ContractCode,
+                CurrentBalance = contract.CurrentBalance,
+                CurrentBalanceCurrency = (int)contract.CurrentBalanceCurrency,
+                DateAccountOpened = contract.DateAccountOpened,
+                DateOfLastPayment = contract.DateOfLastPayment,
+                InstallmentAmount = contract.InstallmentAmount,
+                InstallmentAmountCurrency = (int)contract.InstallmentAmountCurrency,
+                NextPaymentDate = contract.NextPaymentDate,
+                OriginalAmount = contract.OriginalAmount,
+                OriginalAmountCurrency = (int)contract.OriginalAmountCurrency,
+                OverdueBalance = contract.OverdueBalance,
+                OverdueBalanceCurrency = (int)contract.OverdueBalanceCurrency,
+                PhaseOfContract = (int)contract.PhaseOfContract,
+                RealEndDate = contract.RealEndDate,
+            };
+            if (contract.Individuals != null)
+            {
+                foreach (var item in contract.Individuals)
+                {
+                    DataAccessLayer.Models.Individual individual = new DataAccessLayer.Models.Individual()
+                    {
+                        CustomerCode = item.CustomerCode,
+                        DateOfBirth = item.DateOfBirth,
+                        FirstName = item.FirstName,
+                        Gender = (int)item.Gender,
+                        LastName = item.LastName,
+                        NationalID = item.NationalID
+                    };
+                    contractData.Individuals.Add(individual);
+                }
+            }
+            if (contract.SubjectRoles != null)
+            {
+                foreach (var item in contract.SubjectRoles)
+                {
+                    DataAccessLayer.Models.SubjectRole subjectRole = new DataAccessLayer.Models.SubjectRole()
+                    {
+                        CustomerCode = item.CustomerCode,
+                        GuaranteeAmount = item.GuaranteeAmount,
+                        GuaranteeAmountCurrency = (int?)item.GuaranteeAmountCurrency,
+                        RoleOfCustomer = (int)item.RoleOfCustomer
+                    };
+                }
+            }
+
+            return contractData;
+        }
+
         public void ValidateImportedData(Contract contract)
         {
             ValidatorResults.AddRange(ImportValidator.ValidateFields(
-                        new ValidatedFields[] { ValidatedFields.DateOfLastPayment, ValidatedFields.DateAccountOpened  },
+                        new ValidatedFields[] { ValidatedFields.DateOfLastPayment, ValidatedFields.DateAccountOpened },
                         new string[] { (contract.DateOfLastPayment < contract.NextPaymentDate).ToString(),
                                        (contract.DateAccountOpened < contract.DateOfLastPayment ).ToString()
                         }
                         ));
             foreach (var item in contract.Individuals)
             {
-               ValidatorResults.AddRange(ImportValidator.ValidateFields(
-                        new ValidatedFields[] { ValidatedFields.DateOfBirth },
-                        new string[] { item.DateOfBirth.ToString() }
-                        ));
+                ValidatorResults.AddRange(ImportValidator.ValidateFields(
+                         new ValidatedFields[] { ValidatedFields.DateOfBirth },
+                         new string[] { item.DateOfBirth.ToString() }
+                         ));
             }
             foreach (var item in contract.SubjectRoles)
             {

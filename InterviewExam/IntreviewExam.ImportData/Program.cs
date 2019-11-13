@@ -1,9 +1,12 @@
-﻿using System;
+﻿using IntreviewExam.DataAccessLayer;
+using IntreviewExam.DataAccessLayer.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unity;
+using Unity.Injection;
 
 namespace IntreviewExam.ImportData
 {
@@ -16,7 +19,10 @@ namespace IntreviewExam.ImportData
             IUnityContainer unitycontainer = new UnityContainer();
             unitycontainer.RegisterType<IImportContract, ImportContract>();
             unitycontainer.RegisterType<IImportValidator, ImportValidator>();
-            ImportContract importContract = unitycontainer.Resolve<ImportContract>();
+            unitycontainer.RegisterType<IConnection, BaseRepository>(); 
+            unitycontainer.RegisterType<IErrorRepository, ErrorRepository>(); 
+            unitycontainer.RegisterType<IContractRepository, ContractRepository>();
+            IImportContract importContract = unitycontainer.Resolve<ImportContract>();
             importContract.ProcessFile(FileName, FileNameXsd);
         }
     }
