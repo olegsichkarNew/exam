@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace IntreviewExam.ImportData
 {
-    interface IValidateContract
+    public enum ValidationResult
     {
+        None = 0,
+        OK = 1,
+        Warn = 2,
+        Error = 3
     }
 }

@@ -11,6 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntreviewExam.ImportData", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntreviewExam.ImportData", "IntreviewExam.ImportData\IntreviewExam.ImportData.csproj", "{5B785A33-7160-4CFA-84B6-4CCC15327FAD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewExam.Entities", "InterviewExam.Entities\InterviewExam.Entities.csproj", "{BA9054D2-A702-4271-B1D3-2E1D2F667198}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewExam.Common", "InterviewExam.Common\InterviewExam.Common.csproj", "{EA3981D0-679C-4C57-9B3A-2DD9E961A14A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +29,14 @@ Global
 		{5B785A33-7160-4CFA-84B6-4CCC15327FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B785A33-7160-4CFA-84B6-4CCC15327FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B785A33-7160-4CFA-84B6-4CCC15327FAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA9054D2-A702-4271-B1D3-2E1D2F667198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA9054D2-A702-4271-B1D3-2E1D2F667198}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA9054D2-A702-4271-B1D3-2E1D2F667198}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA9054D2-A702-4271-B1D3-2E1D2F667198}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA3981D0-679C-4C57-9B3A-2DD9E961A14A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA3981D0-679C-4C57-9B3A-2DD9E961A14A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA3981D0-679C-4C57-9B3A-2DD9E961A14A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA3981D0-679C-4C57-9B3A-2DD9E961A14A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
