@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewExam.Web", "InterviewExam\InterviewExam.Web.csproj", "{FC5A3324-2E3C-45D5-96FB-EE07FBCC873C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntreviewExam.Web", "IntreviewExam.Web", "{89E2B020-8748-4A21-9813-C983A6CDFAAD}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntreviewExam.ImportData", "IntreviewExam.ImportData", "{8DD50B56-68FA-4F4D-B261-CACB6474E593}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntreviewExam.ImportData", "IntreviewExam.ImportData\IntreviewExam.ImportData.csproj", "{5B785A33-7160-4CFA-84B6-4CCC15327FAD}"
@@ -29,10 +25,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FC5A3324-2E3C-45D5-96FB-EE07FBCC873C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FC5A3324-2E3C-45D5-96FB-EE07FBCC873C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FC5A3324-2E3C-45D5-96FB-EE07FBCC873C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FC5A3324-2E3C-45D5-96FB-EE07FBCC873C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5B785A33-7160-4CFA-84B6-4CCC15327FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5B785A33-7160-4CFA-84B6-4CCC15327FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B785A33-7160-4CFA-84B6-4CCC15327FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -62,7 +54,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{FC5A3324-2E3C-45D5-96FB-EE07FBCC873C} = {89E2B020-8748-4A21-9813-C983A6CDFAAD}
 		{5B785A33-7160-4CFA-84B6-4CCC15327FAD} = {8DD50B56-68FA-4F4D-B261-CACB6474E593}
 		{FA0B198C-5B68-491F-8538-1A1BBB7BDF8A} = {0860F4FC-EFFD-421C-872F-9A8BCD0BCC3A}
 		{70637DE8-02AA-4E65-9668-09BB205DD3CC} = {0860F4FC-EFFD-421C-872F-9A8BCD0BCC3A}

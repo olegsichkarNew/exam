@@ -11,6 +11,14 @@ namespace IntreviewExam.DataAccessLayer
 {
     public class ErrorRepository : BaseRepository, IErrorRepository
     {
+        public void BulkInsert(IEnumerable<Error> errors)
+        {
+            var builder = new SqlParametersBuilder()
+              .WithErrorTableParam(SqlSpParameterNames.ErrorsParamName,  errors);
+            ExecuteProcedure(SqlSpNames.InsertErrorBulkLogSpName, builder.Build());
+
+        }
+
         public void Insert(Error error)
         {
             var builder = new SqlParametersBuilder()

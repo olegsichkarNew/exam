@@ -10,5 +10,7 @@ namespace IntreviewExam.DataAccessLayer.DbConstants
     {
         public const string InsertContractSpName = "InsertContract";
         public const string InsertErrorLogSpName = "InsertErrorLog";
+        public const string InsertContractBulkSpName = "InsertContractBulk";
+        public const string InsertErrorBulkLogSpName = "InsertErrorBulkLog";
     }
 }

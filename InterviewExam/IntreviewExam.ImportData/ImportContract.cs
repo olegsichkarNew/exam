@@ -21,8 +21,9 @@ namespace IntreviewExam.ImportData
         protected IImportValidator ImportValidator { get; set; }
         protected IContractRepository ContractRepository { get; set; }
         protected IErrorRepository ErrorRepository { get; set; }
-        protected ValidatorResult CurrentValidatorResult { get; set; }
         public List<ValidatorResult> ValidatorResults { get; private set; }
+        int SaveRecordsInBulMode = int.Parse(System.Configuration.ConfigurationManager.AppSettings["BulkMode"]);
+
         public ImportContract(IImportValidator importValidator,
             IContractRepository contractRepository,
             IErrorRepository errorRepository)
@@ -35,16 +36,15 @@ namespace IntreviewExam.ImportData
             SubjectRoleProcessors = new Dictionary<string, Action<string, SubjectRole>>();
             ValidatorResults = new List<ValidatorResult>();
         }
-        public void Import()
-        {
-
-        }
-        private static void ValidationCallBack(object sender, ValidationEventArgs args)
+ 
+        private  void ValidationCallBack(object sender, ValidationEventArgs args)
         {
             if (args.Severity == XmlSeverityType.Warning)
                 Console.WriteLine("\tWarning: Matching schema not found.  No validation occurred." + args.Message);
             else
-                Console.WriteLine("\tValidation error: " + args.Message);
+            {
+                ProcessException(args.Message);
+            }
 
         }
 
@@ -59,7 +59,9 @@ namespace IntreviewExam.ImportData
             settings.ValidationFlags |= XmlSchemaValidationFlags.ReportValidationWarnings;
             settings.ValidationEventHandler += new ValidationEventHandler(ValidationCallBack);
 
-            // List<Contract> contracts = new List<Contract>();
+            List<Contract> contracts = new List<Contract>(SaveRecordsInBulMode);
+            List<Error> errors = new List<Error>(SaveRecordsInBulMode);
+            int counter = 0;
             using (XmlReader reader = XmlReader.Create(pathToXml))
             {
                 while (reader.Read())
@@ -72,7 +74,6 @@ namespace IntreviewExam.ImportData
                                 if (reader.Name == "Contract")
                                 {
                                     Contract contract = new Contract();
-                                    CurrentValidatorResult = new ValidatorResult();
 
                                     XElement el = XElement.ReadFrom(reader) as XElement;
                                     if (el != null)
@@ -98,77 +99,119 @@ namespace IntreviewExam.ImportData
                                         }
                                     }
                                     ValidateImportedData(contract);
+
                                     if (ValidatorResults.Count() == 0)
-                                        ContractRepository.Insert(MapContract(contract));
+                                    {
+                                        contracts.Add(contract);
+                                    }
                                     else
-                                        ErrorRepository.Insert(new DataAccessLayer.Models.Error()
-                                                {
-                                                    ContractCode = contract.ContractCode,
-                                                    Messages = ValidatorResults.Select(x => x.Message).ToList()
-                                                }
-                                            );
+                                    {
+                                        errors.Add(new Error 
+                                        {
+                                            ContractCode = contract.ContractCode, 
+                                            Messages = ValidatorResults.Select(x => x.Message).ToList()
+                                        });
+                                    }
+                                    counter++;
                                     ValidatorResults.Clear();
+                                    if (counter==SaveRecordsInBulMode)
+                                    {
+                                        SaveData(contracts, errors);
+                                        counter = 0;
+                                    }
                                 }
                                 break;
                         }
                     }
                 }
             }
+            SaveData(contracts, errors);
+       }
 
+        private void SaveData(List<Contract> contracts, List<Error> errors)
+        {
+            if (contracts.Count>0)
+                ContractRepository.BulkInsert(MapContract(contracts));
+            if (errors.Count>0)
+                ErrorRepository.BulkInsert(MapErrors(errors));
 
+            contracts.Clear();
+            errors.Clear();
+        }
+
+        private List<DataAccessLayer.Models.Error> MapErrors(List<Error> errors)
+        {
+            List<DataAccessLayer.Models.Error> lstErrors = new List<DataAccessLayer.Models.Error>(errors.Count);
+            foreach (var item in errors)
+            {
+                lstErrors.Add(new DataAccessLayer.Models.Error()
+                {
+                    ContractCode = item.ContractCode,
+                    Messages = item.Messages
+                });
+            }
+
+            return lstErrors;
         }
 
         //TODO Move to BL
-        private DataAccessLayer.Models.Contract MapContract(Contract contract)
+        private List<DataAccessLayer.Models.Contract> MapContract(List<Contract> contracts)
         {
-            var contractData = new DataAccessLayer.Models.Contract()
+            List<DataAccessLayer.Models.Contract> lstContract = new List<DataAccessLayer.Models.Contract>(contracts.Count);
+            foreach (var item in contracts)
             {
-                ContractCode = contract.ContractCode,
-                CurrentBalance = contract.CurrentBalance,
-                CurrentBalanceCurrency = (int)contract.CurrentBalanceCurrency,
-                DateAccountOpened = contract.DateAccountOpened,
-                DateOfLastPayment = contract.DateOfLastPayment,
-                InstallmentAmount = contract.InstallmentAmount,
-                InstallmentAmountCurrency = (int)contract.InstallmentAmountCurrency,
-                NextPaymentDate = contract.NextPaymentDate,
-                OriginalAmount = contract.OriginalAmount,
-                OriginalAmountCurrency = (int)contract.OriginalAmountCurrency,
-                OverdueBalance = contract.OverdueBalance,
-                OverdueBalanceCurrency = (int)contract.OverdueBalanceCurrency,
-                PhaseOfContract = (int)contract.PhaseOfContract,
-                RealEndDate = contract.RealEndDate,
-            };
-            if (contract.Individuals != null)
-            {
-                foreach (var item in contract.Individuals)
-                {
-                    DataAccessLayer.Models.Individual individual = new DataAccessLayer.Models.Individual()
-                    {
-                        CustomerCode = item.CustomerCode,
-                        DateOfBirth = item.DateOfBirth,
-                        FirstName = item.FirstName,
-                        Gender = (int)item.Gender,
-                        LastName = item.LastName,
-                        NationalID = item.NationalID
-                    };
-                    contractData.Individuals.Add(individual);
-                }
+                var contractData = new DataAccessLayer.Models.Contract()
+                        {
+                            ContractCode = item.ContractCode,
+                            CurrentBalance = item.CurrentBalance,
+                            CurrentBalanceCurrency = (int)item.CurrentBalanceCurrency,
+                            DateAccountOpened = item.DateAccountOpened,
+                            DateOfLastPayment = item.DateOfLastPayment,
+                            InstallmentAmount = item.InstallmentAmount,
+                            InstallmentAmountCurrency = (int)item.InstallmentAmountCurrency,
+                            NextPaymentDate = item.NextPaymentDate,
+                            OriginalAmount = item.OriginalAmount,
+                            OriginalAmountCurrency = (int)item.OriginalAmountCurrency,
+                            OverdueBalance = item.OverdueBalance,
+                            OverdueBalanceCurrency = (int)item.OverdueBalanceCurrency,
+                            PhaseOfContract = (int)item.PhaseOfContract,
+                            RealEndDate = item.RealEndDate,
+                        };
+                        if (item.Individuals != null)
+                        {
+                            foreach (var ind in item.Individuals)
+                            {
+                                DataAccessLayer.Models.Individual individual = new DataAccessLayer.Models.Individual()
+                                {
+                                    CustomerCode = ind.CustomerCode,
+                                    DateOfBirth = ind.DateOfBirth,
+                                    FirstName = ind.FirstName,
+                                    Gender = (int)ind.Gender,
+                                    LastName = ind.LastName,
+                                    NationalID = ind.NationalID
+                                };
+                                contractData.Individuals.Add(individual);
+                            }
+                        }
+                        if (item.SubjectRoles != null)
+                        {
+                            foreach (var role in item.SubjectRoles)
+                            {
+                                DataAccessLayer.Models.SubjectRole subjectRole = new DataAccessLayer.Models.SubjectRole()
+                                {
+                                    CustomerCode = role.CustomerCode,
+                                    GuaranteeAmount = role.GuaranteeAmount,
+                                    GuaranteeAmountCurrency = (int?)role.GuaranteeAmountCurrency,
+                                    RoleOfCustomer = (int)role.RoleOfCustomer
+                                };
+                                contractData.SubjectRoles.Add(subjectRole);
+                            }
+                        }
+                lstContract.Add(contractData);
             }
-            if (contract.SubjectRoles != null)
-            {
-                foreach (var item in contract.SubjectRoles)
-                {
-                    DataAccessLayer.Models.SubjectRole subjectRole = new DataAccessLayer.Models.SubjectRole()
-                    {
-                        CustomerCode = item.CustomerCode,
-                        GuaranteeAmount = item.GuaranteeAmount,
-                        GuaranteeAmountCurrency = (int?)item.GuaranteeAmountCurrency,
-                        RoleOfCustomer = (int)item.RoleOfCustomer
-                    };
-                }
-            }
+        
 
-            return contractData;
+            return lstContract;
         }
 
         public void ValidateImportedData(Contract contract)
@@ -192,13 +235,6 @@ namespace IntreviewExam.ImportData
                          new ValidatedFields[] { ValidatedFields.GuaranteeAmount },
                          new string[] { ((item.GuaranteeAmount ?? 0) < contract.OriginalAmount).ToString() }
                          ));
-            }
-        }
-        private void ValidateCellValue(string fieldName, string cellValue)
-        {
-            if (ContractProcessors.ContainsKey(fieldName))
-            {
-                ContractProcessors[fieldName](cellValue, new Contract());
             }
         }
         private void FillContractData(Contract contract, XElement item)
@@ -245,15 +281,16 @@ namespace IntreviewExam.ImportData
             }
             catch (Exception ex)
             {
-                ProcessException(ex);
+                ProcessException(ex.Message);
             }
 
         }
 
-        private void ProcessException(Exception ex)
+        private void ProcessException(string message)
         {
-            CurrentValidatorResult.AddNewErrorMessage(ex.Message);
-            ValidatorResults.Add(CurrentValidatorResult);
+            var validator = new ValidatorResult();
+            validator.AddNewErrorMessage(message);
+            ValidatorResults.Add(validator);
         }
 
         private Individual FillIndividual(XElement item)
@@ -289,7 +326,7 @@ namespace IntreviewExam.ImportData
             }
             catch (Exception ex)
             {
-                ProcessException(ex);
+                ProcessException(ex.Message);
             }
 
             return individual;
@@ -319,7 +356,7 @@ namespace IntreviewExam.ImportData
             catch (Exception ex)
             {
 
-                ProcessException(ex);
+                ProcessException(ex.Message);
             }
 
             return subjectRole;

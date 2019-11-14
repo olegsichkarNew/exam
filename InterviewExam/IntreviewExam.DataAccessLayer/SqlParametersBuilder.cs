@@ -109,14 +109,51 @@ namespace IntreviewExam.DataAccessLayer
             });
             return this;
         }
-        public SqlParametersBuilder WithSubjectRoleTableParam(string parameterName, IEnumerable<SubjectRole> values)
+        public SqlParametersBuilder WithIndividualBulkTableParam(string parameterName, IEnumerable<Contract> values)
+        {
+            var table = new DataTable();
+            table.Columns.Add("CustomerCode", typeof(String));
+            table.Columns.Add("DateOfBirth", typeof(DateTime));
+            table.Columns.Add("FirstName", typeof(string));
+            table.Columns.Add("Gender", typeof(Int32));
+            table.Columns.Add("LastName", typeof(string));
+            table.Columns.Add("NationalID", typeof(string));
+
+            if (values != null && values.Any())
+            {
+                foreach (var v in values)
+                {
+                    foreach (var item in v.Individuals)
+                    {
+                        table.Rows.Add(new object[]
+                    {
+                        item.CustomerCode,
+                        item.DateOfBirth,
+                        item.FirstName,
+                        item.Gender,
+                        item.LastName,
+                        item.NationalID,
+                    });
+                    }
+                }
+            }
+
+            _parameters.Add(new SqlParameter(parameterName, table)
+            {
+                SqlDbType = SqlDbType.Structured,
+                TypeName = UserDefinedTableTypes.IndividualTableTypeName,
+                Direction = ParameterDirection.Input,
+            });
+            return this;
+        }
+       public SqlParametersBuilder WithSubjectRoleTableParam(string parameterName, IEnumerable<SubjectRole> values)
         {
             var table = new DataTable();
             table.Columns.Add("CustomerCode", typeof(String));
             table.Columns.Add("GuaranteeAmount", typeof(decimal));
             table.Columns.Add("GuaranteeAmountCurrency", typeof(Int32));
             table.Columns.Add("RoleOfCustomer", typeof(Int32));
-          
+
             if (values != null && values.Any())
             {
                 foreach (var v in values)
@@ -135,6 +172,123 @@ namespace IntreviewExam.DataAccessLayer
             {
                 SqlDbType = SqlDbType.Structured,
                 TypeName = UserDefinedTableTypes.SubjectRoleTableTypeName,
+                Direction = ParameterDirection.Input,
+            });
+            return this;
+        }
+       public SqlParametersBuilder WithSubjectRoleBulkTableParam(string parameterName, IEnumerable<Contract> values)
+        {
+            var table = new DataTable();
+            table.Columns.Add("CustomerCode", typeof(String));
+            table.Columns.Add("GuaranteeAmount", typeof(decimal));
+            table.Columns.Add("GuaranteeAmountCurrency", typeof(Int32));
+            table.Columns.Add("RoleOfCustomer", typeof(Int32));
+
+            if (values != null && values.Any())
+            {
+                foreach (var item in values)
+                {
+                    foreach (var v in item.SubjectRoles)
+                    {
+                        table.Rows.Add(new object[]
+                    {
+                        v.CustomerCode,
+                        v.GuaranteeAmount,
+                        v.GuaranteeAmountCurrency,
+                        v.RoleOfCustomer,
+                       });
+                    }
+                    
+                }
+            }
+
+            _parameters.Add(new SqlParameter(parameterName, table)
+            {
+                SqlDbType = SqlDbType.Structured,
+                TypeName = UserDefinedTableTypes.SubjectRoleTableTypeName,
+                Direction = ParameterDirection.Input,
+            });
+            return this;
+        }
+      public SqlParametersBuilder WithErrorTableParam(string parameterName, IEnumerable<Error> values)
+        {
+            var table = new DataTable();
+            table.Columns.Add("CustomerCode", typeof(String));
+            table.Columns.Add("StringValue", typeof(string));
+
+            if (values != null && values.Any())
+            {
+                foreach (var v in values)
+                {
+                    foreach (var item in v.Messages)
+                    {
+                        table.Rows.Add(new object[]
+                    {
+                            v.ContractCode,
+                            item,
+                       });
+                    }
+
+                }
+            }
+
+            _parameters.Add(new SqlParameter(parameterName, table)
+            {
+                SqlDbType = SqlDbType.Structured,
+                TypeName = UserDefinedTableTypes.ErrorsTableTypeName,
+                Direction = ParameterDirection.Input,
+            });
+            return this;
+        }
+        public SqlParametersBuilder WithContractTableParam(string parameterName, IEnumerable<Contract> values)
+        {
+            var table = new DataTable();
+            table.Columns.Add("CustomerCode", typeof(String));
+            table.Columns.Add("CurrentBalance", typeof(decimal));
+            table.Columns.Add("DateAccountOpened", typeof(DateTime));
+            table.Columns.Add("DateOfLastPayment", typeof(DateTime));
+            table.Columns.Add("InstallmentAmount", typeof(decimal));
+            table.Columns.Add("InstallmentAmountCurrency", typeof(int));
+            table.Columns.Add("NextPaymentDate", typeof(DateTime));
+            table.Columns.Add("OriginalAmount", typeof(decimal));
+            table.Columns.Add("OriginalAmountCurrency", typeof(int));
+            table.Columns.Add("OverdueBalance", typeof(decimal));
+            table.Columns.Add("OverdueBalanceCurrency", typeof(int));
+            table.Columns.Add("PhaseOfContract", typeof(int));
+            table.Columns.Add("RealEndDate", typeof(DateTime));
+            table.Columns.Add("CurrentBalanceCurrency", typeof(int));
+
+            if (values != null && values.Any())
+            {
+                foreach (var v in values)
+                {
+
+                    table.Rows.Add(new object[]
+                {
+                            v.ContractCode,
+                            v.CurrentBalance,
+                            v.DateAccountOpened,
+                            v.DateOfLastPayment,
+                            v.InstallmentAmount,
+                            v.InstallmentAmountCurrency,
+                            v.NextPaymentDate,
+                            v.OriginalAmount,
+                            v.OriginalAmountCurrency,
+                            v.OverdueBalance,
+                            v.OverdueBalanceCurrency,
+                            v.PhaseOfContract,
+                            v.RealEndDate,
+                            v.CurrentBalanceCurrency
+                   });
+
+
+                }
+            }
+
+            _parameters.Add(new SqlParameter(parameterName, table)
+            {
+                SqlDbType = SqlDbType.Structured,
+                TypeName = UserDefinedTableTypes.ContractTableTypeName,
                 Direction = ParameterDirection.Input,
             });
             return this;

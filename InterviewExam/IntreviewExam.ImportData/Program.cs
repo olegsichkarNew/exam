@@ -12,8 +12,8 @@ namespace IntreviewExam.ImportData
 {
     class Program
     {
-        const string FileName = @"d:\Sample.xml";
-        const string FileNameXsd = @"d:\Data.xsd";
+        static readonly string FileName = System.Configuration.ConfigurationManager.AppSettings["FileName"];
+        static readonly string FileNameXsd = System.Configuration.ConfigurationManager.AppSettings["FileNameXsd"];
         static void Main(string[] args)
         {
             IUnityContainer unitycontainer = new UnityContainer();

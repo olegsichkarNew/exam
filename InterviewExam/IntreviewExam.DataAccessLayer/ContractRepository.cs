@@ -34,7 +34,20 @@ namespace IntreviewExam.DataAccessLayer
      .WithIntParam(SqlSpParameterNames.CurrentBalanceCurrencyParamName, contract.CurrentBalanceCurrency);
          ExecuteProcedure(SqlSpNames.InsertContractSpName, builder.Build());
         }
+        public void BulkInsert(IEnumerable<Contract> contracts)
+        {
+            var builder = new SqlParametersBuilder()
+            .WithContractTableParam(SqlSpParameterNames.ContractsParamName, contracts)
+            .WithIndividualBulkTableParam(SqlSpParameterNames.IndividualsParamName, contracts)
+            .WithSubjectRoleBulkTableParam(SqlSpParameterNames.SubjectRolesParamName, contracts);
+            ExecuteProcedure(SqlSpNames.InsertContractBulkSpName, builder.Build());
 
-     
+        }
+        public Individual SearchIndividual(string nationalId)
+        {
+            return new Individual() { NationalID = nationalId, FirstName = "test"};
+        }
+
+ 
     }
 }

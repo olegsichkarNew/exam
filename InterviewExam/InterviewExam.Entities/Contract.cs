@@ -25,6 +25,7 @@ namespace InterviewExam.Entities
 
         public List<SubjectRole> SubjectRoles { get; set; } = new List<SubjectRole>();
         public List<Individual> Individuals { get; set; } = new List<Individual>();
+        public List<String> ErrorMessages { get; set; } = new List<String>();
 
     }
 }

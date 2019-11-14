@@ -10,5 +10,6 @@ namespace IntreviewExam.DataAccessLayer.Contracts
     public interface IErrorRepository
     {
         void Insert(Error error);
+        void BulkInsert(IEnumerable<Error> errors);
     }
 }

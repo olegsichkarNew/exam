@@ -11,5 +11,7 @@ namespace IntreviewExam.DataAccessLayer.DbConstants
         public const string IndividualTableTypeName = "dbo.Individual";
         public const string SubjectRoleTableTypeName = "dbo.SubjectRole";
         public const string StringValuesTableTypeName = "dbo.StringValuesTable";
+        public const string ErrorsTableTypeName = "dbo.Errors";
+        public const string ContractTableTypeName = "dbo.Contracts";
     }
 }

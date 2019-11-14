@@ -25,6 +25,8 @@ namespace IntreviewExam.DataAccessLayer.DbConstants
         public const string IndividualsParamName = "Individuals";
         public const string SubjectRolesParamName = "SubjectRoles";
         public const string MessagesParamName = "Messages";
+        public const string ContractsParamName = "Contracts";
+        public const string ErrorsParamName = "Errors";
 
 
     }

@@ -9,7 +9,6 @@ namespace IntreviewExam.ImportData
 {
     public interface IImportContract
     {
-        void Import();
         void ProcessFile(string pathToXml, string pathToXsd);
         void ValidateImportedData(Contract contract);
     }

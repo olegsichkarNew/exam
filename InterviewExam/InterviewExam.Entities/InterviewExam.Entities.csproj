@@ -45,6 +45,7 @@
     <Compile Include="CommonRoleOfCustomer.cs" />
     <Compile Include="Contract.cs" />
     <Compile Include="ContractPhaseOfContract.cs" />
+    <Compile Include="Error.cs" />
     <Compile Include="Gender.cs" />
     <Compile Include="Individual.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
